@@ -2,7 +2,7 @@
 
 **Course:** MLOps – Assignment 1  
 **Student:** <Your Name> (<BITS ID>)  
-**Repository:** https://github.com/<your-username>/heart-disease-mlops  
+**Repository:** https://github.com/kalloln2007/heart-disease-mlops  
 **Video:** <link to the demo video>  
 **Date:** <submission date>
 
@@ -236,7 +236,7 @@ The workflow `.github/workflows/ci-cd.yml` runs on every push and pull request t
 | **lint** | `ruff check`, `ruff format --check` | – |
 | **test** | pytest with coverage, JUnit XML; results go to the job summary | `test-reports` (JUnit + HTML coverage) |
 | **train** | download → clean → EDA → train; **quality gate** fails the build if test ROC-AUC < 0.85; a metrics table is written to the run summary | `model`, `mlflow-and-reports` (MLflow store, figures, training log) |
-| **docker** | build the image with the freshly trained model, run it, wait for `/health`, smoke-test `/predict`, assert that invalid input returns 422; on `main`, push to `ghcr.io/<user>/heart-disease-api:{sha,latest}` | `docker-smoke-test` (metrics + container logs) |
+| **docker** | build the image with the freshly trained model, run it, wait for `/health`, smoke-test `/predict`, assert that invalid input returns 422; on `main`, push to `ghcr.io/kalloln2007/heart-disease-api:{sha,latest}` | `docker-smoke-test` (metrics + container logs) |
 
 Pip caching and `concurrency` cancellation keep runs short. The image is pushed with the built-in `GITHUB_TOKEN`, so no secrets are stored.
 
@@ -362,7 +362,7 @@ The project delivers a reproducible, tested and monitored ML service. Raw UCI da
 ## Appendix A – How to reproduce
 
 ```
-git clone https://github.com/<your-username>/heart-disease-mlops && cd heart-disease-mlops
+git clone https://github.com/kalloln2007/heart-disease-mlops && cd heart-disease-mlops
 python -m venv .venv && .venv\Scripts\activate          # Linux: source .venv/bin/activate
 pip install -r requirements.txt
 python scripts/download_data.py && python -m heart_disease.data && python -m heart_disease.train
@@ -375,4 +375,4 @@ curl -X POST http://localhost:8080/predict -H "Content-Type: application/json" -
 
 * **Local / Docker:** `http://localhost:8000` (Swagger UI at `/docs`)
 * **Kubernetes:** `http://localhost:8080` (LoadBalancer) or `http://heart-disease.localtest.me` (Ingress)
-* **Image:** `ghcr.io/<your-username>/heart-disease-api:latest`
+* **Image:** `ghcr.io/kalloln2007/heart-disease-api:latest`

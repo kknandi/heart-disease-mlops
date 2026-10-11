@@ -1,6 +1,6 @@
 # Heart Disease Risk Prediction – End-to-End MLOps
 
-![CI/CD](https://github.com/<your-username>/heart-disease-mlops/actions/workflows/ci-cd.yml/badge.svg)
+![CI/CD](https://github.com/kalloln2007/heart-disease-mlops/actions/workflows/ci-cd.yml/badge.svg)
 
 This project builds a binary classifier that predicts whether a patient has heart disease from 13 clinical attributes in the [UCI Heart Disease dataset](https://archive.ics.uci.edu/dataset/45/heart+disease) (Cleveland subset, 303 patients). The model is served through a containerised FastAPI service. The project covers the full MLOps lifecycle:
 
@@ -137,7 +137,7 @@ docker run --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
 curl -s -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @sample_request.json
 ```
 
-The CI pipeline publishes the image to `ghcr.io/<your-username>/heart-disease-api:latest`.
+The CI pipeline publishes the image to `ghcr.io/kalloln2007/heart-disease-api:latest`.
 
 ## 6. Kubernetes deployment
 
@@ -155,7 +155,7 @@ curl -s -X POST http://localhost:8080/predict -H "Content-Type: application/json
 * **Ingress (optional):** first install ingress-nginx by following the quick-start in the
   [ingress-nginx deploy guide](https://kubernetes.github.io/ingress-nginx/deploy/). Then browse to `http://heart-disease.localtest.me/docs`.
 * **Minikube:** run `minikube image load heart-disease-api:1.0.0`, then `kubectl apply -k k8s/`, then run `minikube tunnel` in a separate terminal.
-* **Cloud (GKE/EKS/AKS):** set `image:` in `k8s/deployment.yaml` to `ghcr.io/<your-username>/heart-disease-api:latest`. The LoadBalancer then gets a public IP.
+* **Cloud (GKE/EKS/AKS):** set `image:` in `k8s/deployment.yaml` to `ghcr.io/kalloln2007/heart-disease-api:latest`. The LoadBalancer then gets a public IP.
 * **Clean up:** `kubectl delete -k k8s/`
 
 The Deployment runs 2 replicas with a zero-downtime rolling update and startup/readiness/liveness probes on `/health`. It also sets CPU/memory requests and limits, uses a non-root read-only root filesystem, and carries Prometheus scrape annotations.
@@ -193,4 +193,4 @@ python scripts/build_report.py      # -> reports/MLOps_Assignment1_Report.docx
 
 ---
 
-**Repository:** https://github.com/<your-username>/heart-disease-mlops
+**Repository:** https://github.com/kalloln2007/heart-disease-mlops
