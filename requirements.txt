@@ -1,0 +1,39 @@
+# Full development / training environment (Python 3.13).
+# Install with:  pip install -r requirements.txt
+# Serving-only (Docker) dependencies live in requirements-serve.txt.
+
+# --- core ML ---
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
+
+# --- visualisation / EDA ---
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# --- experiment tracking ---
+mlflow==3.17.0
+
+# --- serving API + monitoring ---
+fastapi==0.143.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.0
+prometheus_client==0.26.0
+
+# --- testing / linting ---
+pytest==9.1.1
+pytest-cov==7.1.0
+httpx==0.28.1
+ruff==0.17.0
+requests==2.34.2
+
+# --- notebooks / reporting ---
+jupyter==1.1.1
+nbconvert==7.17.1
+ipykernel==7.4.0
+python-docx==1.2.0
+
+# --- this project (src/heart_disease) in editable mode ---
+-e .

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heart-disease-mlops"
+version = "1.0.0"
+description = "Heart disease risk classifier with an end-to-end MLOps pipeline (MLflow, FastAPI, Docker, Kubernetes)."
+requires-python = ">=3.12"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore:Using .httpx. with",
+    "ignore:Hint. Inferred schema contains integer:UserWarning",
+    "ignore:The specified dataset source can be interpreted:UserWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["notebooks", "mlruns"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "SIM"]
+ignore = ["N803", "N806"]  # allow sklearn-style X / X_train names
+
+[tool.coverage.run]
+source = ["heart_disease"]
+omit = ["*/__main__.py"]

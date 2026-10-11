@@ -1,0 +1,51 @@
+2026/10/11 16:14:42 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/11 16:14:42 INFO mlflow.store.db.utils: Updating database tables
+2026-10-11 16:14:43,699 INFO __main__ Train=242 Test=61 (positives in train: 45.9%)
+C:\MtechBitsPilani\Sem3_MLOps_Assignment1\.venv\Lib\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+2026-10-11 16:14:43,876 INFO __main__ [logistic_regression] grid search over 24 candidates
+2026/10/11 16:14:46 WARNING mlflow.sklearn: Saving scikit-learn models in the pickle or cloudpickle format requires exercising caution because these formats rely on Python's object serialization mechanism, which can execute arbitrary code during deserialization. The recommended safe alternative is the 'skops' format. For more information, see: https://scikit-learn.org/stable/model_persistence.html
+2026-10-11 16:14:47,508 INFO __main__ [logistic_regression] best={'C': 1.0, 'class_weight': 'balanced', 'l1_ratio': 0.5} cv_roc_auc=0.9030 test_roc_auc=0.9567
+C:\MtechBitsPilani\Sem3_MLOps_Assignment1\.venv\Lib\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+2026-10-11 16:14:47,535 INFO __main__ [random_forest] grid search over 24 candidates
+2026/10/11 16:14:51 WARNING mlflow.sklearn: Saving scikit-learn models in the pickle or cloudpickle format requires exercising caution because these formats rely on Python's object serialization mechanism, which can execute arbitrary code during deserialization. The recommended safe alternative is the 'skops' format. For more information, see: https://scikit-learn.org/stable/model_persistence.html
+2026-10-11 16:14:51,121 INFO __main__ [random_forest] best={'max_depth': 4, 'max_features': 0.5, 'min_samples_leaf': 4, 'n_estimators': 500} cv_roc_auc=0.8904 test_roc_auc=0.9437
+C:\MtechBitsPilani\Sem3_MLOps_Assignment1\.venv\Lib\site-packages\mlflow\data\dataset_source_registry.py:148: UserWarning: The specified dataset source can be interpreted in multiple ways: LocalArtifactDatasetSource, LocalArtifactDatasetSource. MLflow will assume that this is a LocalArtifactDatasetSource source.
+  return _dataset_source_registry.resolve(
+2026-10-11 16:14:51,146 INFO __main__ [gradient_boosting] grid search over 16 candidates
+2026/10/11 16:14:52 WARNING mlflow.sklearn: Saving scikit-learn models in the pickle or cloudpickle format requires exercising caution because these formats rely on Python's object serialization mechanism, which can execute arbitrary code during deserialization. The recommended safe alternative is the 'skops' format. For more information, see: https://scikit-learn.org/stable/model_persistence.html
+2026-10-11 16:14:52,840 INFO __main__ [gradient_boosting] best={'learning_rate': 0.03, 'max_depth': 2, 'n_estimators': 100, 'subsample': 1.0} cv_roc_auc=0.8790 test_roc_auc=0.9545
+2026-10-11 16:14:52,845 INFO __main__ Model comparison:
+                     cv_accuracy_mean  ...  test_avg_precision
+logistic_regression            0.8426  ...              0.9395
+random_forest                  0.8262  ...              0.9348
+gradient_boosting              0.8137  ...              0.9568
+
+[3 rows x 16 columns]
+Successfully registered model 'heart-disease-classifier'.
+Created version '1' of model 'heart-disease-classifier'.
+2026-10-11 16:14:53,252 INFO __main__ Champion 'logistic_regression' saved to C:\MtechBitsPilani\Sem3_MLOps_Assignment1\models\model.joblib
+{
+  "model_name": "logistic_regression",
+  "cv_metrics": {
+    "cv_accuracy_mean": 0.8426020408163264,
+    "cv_precision_mean": 0.8494285714285713,
+    "cv_recall_mean": 0.8098814229249012,
+    "cv_f1_mean": 0.8257035263354778,
+    "cv_roc_auc_mean": 0.902978502978503,
+    "cv_accuracy_std": 0.04383699280381075,
+    "cv_precision_std": 0.08384436505228247,
+    "cv_recall_std": 0.061619526545154374,
+    "cv_f1_std": 0.046074687405683365,
+    "cv_roc_auc_std": 0.024395384119417725
+  },
+  "test_metrics": {
+    "test_accuracy": 0.8688524590163934,
+    "test_precision": 0.8125,
+    "test_recall": 0.9285714285714286,
+    "test_f1": 0.8666666666666667,
+    "test_roc_auc": 0.9567099567099568,
+    "test_avg_precision": 0.939516425913773
+  }
+}

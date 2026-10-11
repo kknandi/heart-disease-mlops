@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Tooling caches / test output
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+test-results/
+.ipynb_checkpoints/
+
+# MLflow local store (regenerate with `python -m heart_disease.train`;
+# CI uploads it as a workflow artifact)
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Original downloaded archive / assignment brief (data/raw holds the needed files)
+heart+disease/
+heart+disease.zip
+MLOps Assignment 01 2026.pdf
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Large media (upload the demo video to Drive/YouTube and link it instead)
+*.mp4
+*.mov

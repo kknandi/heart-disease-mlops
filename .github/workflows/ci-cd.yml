@@ -1,0 +1,192 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.13"
+  IMAGE_NAME: heart-disease-api
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install ruff
+        run: pip install ruff==0.17.0
+      - name: Ruff lint
+        run: ruff check . --output-format=github
+      - name: Ruff format check
+        run: ruff format --check --diff .
+
+  test:
+    name: Unit tests (pytest)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests with coverage
+        run: |
+          mkdir -p test-results
+          pytest -v --junitxml=test-results/junit.xml \
+                 --cov=heart_disease --cov-report=term-missing \
+                 --cov-report=xml:test-results/coverage.xml \
+                 --cov-report=html:test-results/htmlcov
+      - name: Publish test summary
+        if: always()
+        run: |
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import xml.etree.ElementTree as ET
+          r = ET.parse("test-results/junit.xml").getroot()
+          s = r if r.tag == "testsuite" else r.find("testsuite")
+          print("### Test results")
+          print(f"tests={s.get('tests')} failures={s.get('failures')} errors={s.get('errors')} skipped={s.get('skipped')} time={s.get('time')}s")
+          EOF
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: test-results/
+
+  train:
+    name: Train & track models (MLflow)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Acquire data
+        run: python scripts/download_data.py
+      - name: Clean data
+        run: python -m heart_disease.data
+      - name: EDA figures
+        run: python -m heart_disease.eda
+      - name: Train, tune and log to MLflow
+        run: |
+          set -o pipefail
+          python -m heart_disease.train 2>&1 | tee training_log.txt
+      - name: Quality gate (test ROC-AUC >= 0.85)
+        run: |
+          python - <<'EOF'
+          import json, sys
+          m = json.load(open("models/metadata.json"))
+          auc = m["test_metrics"]["test_roc_auc"]
+          print(f"Champion={m['model_name']} test_roc_auc={auc:.4f}")
+          sys.exit(0 if auc >= 0.85 else "Model below quality gate")
+          EOF
+      - name: Training summary
+        run: |
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import pandas as pd
+          df = pd.read_csv("models/model_comparison.csv", index_col=0)
+          cols = ["cv_roc_auc_mean", "cv_accuracy_mean", "test_roc_auc", "test_accuracy", "test_recall"]
+          print("### Model comparison\n")
+          print("| model | " + " | ".join(cols) + " |")
+          print("|---" * (len(cols) + 1) + "|")
+          for name, row in df[cols].iterrows():
+              print(f"| {name} | " + " | ".join(f"{v:.4f}" for v in row) + " |")
+          EOF
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: model
+          path: |
+            models/model.joblib
+            models/metadata.json
+            models/model_comparison.csv
+      - name: Upload MLflow runs, figures & logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-and-reports
+          path: |
+            mlflow.db
+            mlruns/
+            reports/figures/
+            training_log.txt
+            data/processed/heart_disease_clean.csv
+
+  docker:
+    name: Build, smoke-test & publish image
+    needs: train
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download trained model
+        uses: actions/download-artifact@v4
+        with:
+          name: model
+          path: models/
+      - name: Build image
+        run: docker build -t $IMAGE_NAME:${{ github.sha }} .
+      - name: Run container
+        run: docker run -d --name api -p 8000:8000 $IMAGE_NAME:${{ github.sha }}
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/health; then echo; exit 0; fi
+            sleep 2
+          done
+          echo "API did not become healthy"; docker logs api; exit 1
+      - name: Smoke test /predict
+        run: |
+          mkdir -p smoke
+          curl -fsS -X POST http://localhost:8000/predict \
+               -H "Content-Type: application/json" \
+               -d @sample_request.json | tee smoke/predict_response.json
+          python3 -c "import json; r=json.load(open('smoke/predict_response.json')); assert r['prediction'] in (0,1) and 0<=r['confidence']<=1, r"
+          # invalid input must be rejected with 422
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8000/predict \
+                 -H "Content-Type: application/json" -d '{"age": -5}')
+          test "$code" = "422"
+          curl -fsS http://localhost:8000/metrics > smoke/metrics.txt
+          docker logs api > smoke/container_logs.jsonl 2>&1
+      - name: Upload smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-smoke-test
+          path: smoke/
+      - name: Push to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          for tag in ${{ github.sha }} latest; do
+            docker tag $IMAGE_NAME:${{ github.sha }} ghcr.io/$OWNER/$IMAGE_NAME:$tag
+            docker push ghcr.io/$OWNER/$IMAGE_NAME:$tag
+          done
+      - name: Stop container
+        if: always()
+        run: docker rm -f api || true

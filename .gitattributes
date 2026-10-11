@@ -1,0 +1,7 @@
+# Keep shell scripts / YAML with LF endings when cloned on Windows
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.joblib binary
+*.docx binary
+*.pdf binary

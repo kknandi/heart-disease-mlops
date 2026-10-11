@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # API running in docker compose
+  - job_name: heart-disease-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api:8000"]
+        labels:
+          env: docker-compose
+
+  # API running in local Kubernetes (Docker Desktop LoadBalancer on localhost:8080).
+  # Target is simply DOWN when the K8s deployment is not running.
+  - job_name: heart-disease-api-k8s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+        labels:
+          env: kubernetes

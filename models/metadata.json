@@ -1,0 +1,57 @@
+{
+  "model_name": "logistic_regression",
+  "model_version": "20261011104453",
+  "trained_at": "2026-10-11T10:44:53+00:00",
+  "best_params": {
+    "C": "1.0",
+    "class_weight": "balanced",
+    "l1_ratio": "0.5"
+  },
+  "cv_metrics": {
+    "cv_accuracy_mean": 0.8426020408163264,
+    "cv_precision_mean": 0.8494285714285713,
+    "cv_recall_mean": 0.8098814229249012,
+    "cv_f1_mean": 0.8257035263354778,
+    "cv_roc_auc_mean": 0.902978502978503,
+    "cv_accuracy_std": 0.04383699280381075,
+    "cv_precision_std": 0.08384436505228247,
+    "cv_recall_std": 0.061619526545154374,
+    "cv_f1_std": 0.046074687405683365,
+    "cv_roc_auc_std": 0.024395384119417725
+  },
+  "test_metrics": {
+    "test_accuracy": 0.8688524590163934,
+    "test_precision": 0.8125,
+    "test_recall": 0.9285714285714286,
+    "test_f1": 0.8666666666666667,
+    "test_roc_auc": 0.9567099567099568,
+    "test_avg_precision": 0.939516425913773
+  },
+  "features": [
+    "age",
+    "trestbps",
+    "chol",
+    "thalach",
+    "oldpeak",
+    "ca",
+    "sex",
+    "fbs",
+    "exang",
+    "cp",
+    "restecg",
+    "slope",
+    "thal"
+  ],
+  "derived_features": [
+    "hr_achievement",
+    "risk_flag_count"
+  ],
+  "decision_threshold": 0.5,
+  "mlflow_run_id": "7e86463b3e2b4a80af52bd20ab5fc8b2",
+  "mlflow_model_uri": "models:/m-7cd5a6aa9980409b844d8917980a3457",
+  "data_sha256": "8d102007bbdc3b210ca840fc26c4fb44c6334f25f6074184154f8127f654f6bd",
+  "n_train": 242,
+  "sklearn_version": "1.9.1",
+  "python_version": "3.13.9",
+  "registry_version": "1"
+}
