@@ -57,23 +57,17 @@ This project builds a binary classifier that predicts whether a patient has hear
 
 Requires Python **3.13** (CI and Docker use the same version).
 
-> **Windows PowerShell 5.1 users:** commands below are bash unless marked `powershell`. In PowerShell 5.1 use `;` instead of `&&`, and `curl.exe` (not `curl`, which is an alias for `Invoke-WebRequest`) with the file argument quoted: `-d "@sample_request.json"`.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate              # Linux/macOS
-pip install -r requirements.txt        # pinned versions + editable install of the package
-```
+> Commands are written for **Windows PowerShell**. On Linux/macOS activate with `source .venv/bin/activate` and use `curl` instead of `curl.exe`.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1           # if blocked: Set-ExecutionPolicy -Scope Process Bypass
-pip install -r requirements.txt
+pip install -r requirements.txt        # pinned versions + editable install of the package
 ```
 
 ## 2. Data → EDA → training
 
-```bash
+```powershell
 python scripts/download_data.py        # downloads + verifies the UCI archive into data/raw/
 python -m heart_disease.data           # cleans -> data/processed/heart_disease_clean.csv
 python -m heart_disease.eda            # EDA figures -> reports/figures/
@@ -86,7 +80,7 @@ The notebooks in `notebooks/` contain the full narrative (EDA, model comparison,
 
 ### MLflow UI
 
-```bash
+```powershell
 mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
 # open http://127.0.0.1:5000  -> experiment "heart-disease-classification"
 ```
@@ -102,7 +96,7 @@ pytest --cov=heart_disease
 
 ## 4. Run the API locally
 
-```bash
+```powershell
 uvicorn heart_disease.api.main:app --port 8000
 # Swagger UI: http://127.0.0.1:8000/docs
 ```
@@ -114,15 +108,11 @@ uvicorn heart_disease.api.main:app --port 8000
 | GET | `/model-info` | model name, version, params and metrics |
 | GET | `/metrics` | Prometheus metrics |
 
-**curl (bash):**
-```bash
-curl -s -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d @sample_request.json
-```
-**PowerShell:**
+In a second terminal:
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/predict -ContentType "application/json" -InFile sample_request.json
-# or, with the real curl shipped with Windows:
 curl.exe -s -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d "@sample_request.json"
+# or
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/predict -ContentType "application/json" -InFile sample_request.json
 ```
 **Response:**
 ```json
@@ -141,13 +131,6 @@ Invalid input returns HTTP 422 with field-level errors. Examples: an unknown fie
 
 ## 5. Docker
 
-```bash
-docker build -t heart-disease-api:1.0.0 .
-docker run -d --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
-curl -s -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @sample_request.json
-docker stop heart-api
-```
-
 ```powershell
 docker build -t heart-disease-api:1.0.0 .
 docker run -d --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
@@ -161,16 +144,13 @@ The CI pipeline publishes the image to `ghcr.io/kknandi/heart-disease-api:latest
 
 Tested target: **Docker Desktop → Settings → Kubernetes → Enable**. Minikube instructions are below.
 
-```bash
+```powershell
 docker build -t heart-disease-api:1.0.0 .     # image is used directly by the local cluster
 kubectl apply -k k8s/
 kubectl -n heart-disease rollout status deployment/heart-disease-api
 kubectl -n heart-disease get all
-curl -s -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d @sample_request.json
+curl.exe -s -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d "@sample_request.json"
 ```
-
-PowerShell: replace the last line with
-`curl.exe -s -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d "@sample_request.json"`.
 
 * **Service:** `LoadBalancer` on port 8080. Docker Desktop exposes it on `localhost:8080`.
 * **Ingress (optional):** first install ingress-nginx by following the quick-start in the
@@ -183,7 +163,7 @@ The Deployment runs 2 replicas with a zero-downtime rolling update and startup/r
 
 ## 7. Monitoring & logging
 
-```bash
+```powershell
 docker compose up --build -d                  # API :8000, Prometheus :9090, Grafana :3000
 python scripts/generate_traffic.py --n 300 --invalid-ratio 0.1
 ```
@@ -208,7 +188,7 @@ Each job fails the pipeline on error. Results appear in the run summary.
 
 `reports/REPORT.md` is the source of the written report. After adding screenshots to `screenshots/`, build the Word version:
 
-```bash
+```powershell
 python scripts/build_report.py      # -> reports/MLOps_Assignment1_Report.docx
 ```
 
