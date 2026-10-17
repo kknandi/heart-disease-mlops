@@ -4,7 +4,8 @@
     python scripts/generate_traffic.py --url http://localhost:8080 --n 100   # Kubernetes
 
 Patients are sampled from the cleaned dataset; a fraction of requests is deliberately
-invalid to demonstrate 4xx monitoring. Standard library only.
+invalid to demonstrate 4xx monitoring. Status 0 in the summary means a connection error.
+Standard library only.
 """
 
 from __future__ import annotations
@@ -51,6 +52,21 @@ def post(url: str, payload: dict) -> tuple[int, dict]:
             return resp.status, json.loads(resp.read())
     except urllib.error.HTTPError as err:
         return err.code, {}
+    except (urllib.error.URLError, ConnectionError, TimeoutError):
+        return 0, {}
+
+
+def wait_until_healthy(url: str, timeout: float = 60.0) -> bool:
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with urllib.request.urlopen(f"{url}/health", timeout=5) as resp:  # noqa: S310
+                if resp.status == 200:
+                    return True
+        except (urllib.error.URLError, ConnectionError, TimeoutError):
+            pass
+        time.sleep(2)
+    return False
 
 
 def main() -> None:
@@ -60,6 +76,10 @@ def main() -> None:
     parser.add_argument("--invalid-ratio", type=float, default=0.1)
     parser.add_argument("--delay", type=float, default=0.1, help="seconds between requests")
     args = parser.parse_args()
+    url = args.url.rstrip("/")
+
+    if not wait_until_healthy(url):
+        raise SystemExit(f"API at {url} is not healthy - is the container/server running?")
 
     patients = load_patients()
     statuses, labels = Counter(), Counter()
@@ -67,7 +87,7 @@ def main() -> None:
         payload = dict(random.choice(patients))
         if random.random() < args.invalid_ratio:
             payload["cp"] = 9  # invalid code -> 422
-        status, body = post(args.url.rstrip("/"), payload)
+        status, body = post(url, payload)
         statuses[status] += 1
         if body:
             labels[body["label"]] += 1
