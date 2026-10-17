@@ -1,7 +1,7 @@
 {
   "model_name": "logistic_regression",
-  "model_version": "20261011104453",
-  "trained_at": "2026-10-11T10:44:53+00:00",
+  "model_version": "20261017055314",
+  "trained_at": "2026-10-17T05:53:14+00:00",
   "best_params": {
     "C": "1.0",
     "class_weight": "balanced",
@@ -47,8 +47,8 @@
     "risk_flag_count"
   ],
   "decision_threshold": 0.5,
-  "mlflow_run_id": "7e86463b3e2b4a80af52bd20ab5fc8b2",
-  "mlflow_model_uri": "models:/m-7cd5a6aa9980409b844d8917980a3457",
+  "mlflow_run_id": "d28289f25c4c4d78a69b3214844c29d7",
+  "mlflow_model_uri": "models:/m-f7dcc61b62384f88b33f3e11c0e3cc63",
   "data_sha256": "8d102007bbdc3b210ca840fc26c4fb44c6334f25f6074184154f8127f654f6bd",
   "n_train": 242,
   "sklearn_version": "1.9.1",
