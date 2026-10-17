@@ -57,10 +57,18 @@ This project builds a binary classifier that predicts whether a patient has hear
 
 Requires Python **3.13** (CI and Docker use the same version).
 
+> **Windows PowerShell 5.1 users:** commands below are bash unless marked `powershell`. In PowerShell 5.1 use `;` instead of `&&`, and `curl.exe` (not `curl`, which is an alias for `Invoke-WebRequest`) with the file argument quoted: `-d "@sample_request.json"`.
+
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate      Linux/macOS: source .venv/bin/activate
+source .venv/bin/activate              # Linux/macOS
 pip install -r requirements.txt        # pinned versions + editable install of the package
+```
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1           # if blocked: Set-ExecutionPolicy -Scope Process Bypass
+pip install -r requirements.txt
 ```
 
 ## 2. Data → EDA → training
@@ -92,6 +100,11 @@ ruff check . && ruff format --check .
 pytest --cov=heart_disease
 ```
 
+```powershell
+ruff check . ; ruff format --check .
+pytest --cov=heart_disease
+```
+
 ## 4. Run the API locally
 
 ```bash
@@ -113,6 +126,8 @@ curl -s -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json
 **PowerShell:**
 ```powershell
 Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/predict -ContentType "application/json" -InFile sample_request.json
+# or, with the real curl shipped with Windows:
+curl.exe -s -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d "@sample_request.json"
 ```
 **Response:**
 ```json
@@ -133,8 +148,16 @@ Invalid input returns HTTP 422 with field-level errors. Examples: an unknown fie
 
 ```bash
 docker build -t heart-disease-api:1.0.0 .
-docker run --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
+docker run -d --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
 curl -s -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d @sample_request.json
+docker stop heart-api
+```
+
+```powershell
+docker build -t heart-disease-api:1.0.0 .
+docker run -d --rm -p 8000:8000 --name heart-api heart-disease-api:1.0.0
+curl.exe -s -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d "@sample_request.json"
+docker stop heart-api
 ```
 
 The CI pipeline publishes the image to `ghcr.io/kknandi/heart-disease-api:latest`.
@@ -150,6 +173,9 @@ kubectl -n heart-disease rollout status deployment/heart-disease-api
 kubectl -n heart-disease get all
 curl -s -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d @sample_request.json
 ```
+
+PowerShell: replace the last line with
+`curl.exe -s -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d "@sample_request.json"`.
 
 * **Service:** `LoadBalancer` on port 8080. Docker Desktop exposes it on `localhost:8080`.
 * **Ingress (optional):** first install ingress-nginx by following the quick-start in the
