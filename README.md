@@ -95,11 +95,6 @@ Each model family has a parent run with params, CV and test metrics, a confusion
 
 ## 3. Tests and lint
 
-```bash
-ruff check . && ruff format --check .
-pytest --cov=heart_disease
-```
-
 ```powershell
 ruff check . ; ruff format --check .
 pytest --cov=heart_disease
