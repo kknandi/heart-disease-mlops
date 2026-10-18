@@ -36,3 +36,6 @@ Thumbs.db
 # Large media (upload the demo video to Drive/YouTube and link it instead)
 *.mp4
 *.mov
+
+# Local copies of earlier report versions
+reports/backup/

@@ -186,10 +186,10 @@ Each job fails the pipeline on error. Results appear in the run summary.
 
 ## 9. Report
 
-`reports/REPORT.md` is the source of the written report. After adding screenshots to `screenshots/`, build the Word version:
+`reports/REPORT.md` is the source of the 10-page main report. `reports/SUPPORTING_DOCUMENT.md` holds the full technical detail and every screenshot. Build both Word documents with:
 
 ```powershell
-python scripts/build_report.py      # -> reports/MLOps_Assignment1_Report.docx
+python scripts/build_report.py      # -> reports/MLOps_Assignment1_Report.docx + MLOps_Assignment1_Supporting_Document.docx
 ```
 
 ---
