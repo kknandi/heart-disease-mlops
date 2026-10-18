@@ -245,6 +245,26 @@ Pip caching and `concurrency` cancellation keep runs short. The image is pushed 
 
 ![Figure 15 – Run summary and artifacts](../screenshots/08_github_artifacts.png)
 
+### 7.3 Failure handling
+
+The brief requires that the pipeline fails on code or test errors and gives clear logs. Two mechanisms provide this:
+
+* **Job dependencies.** Each job declares `needs:` on the previous one. If lint or the tests fail, the train and docker jobs are skipped, so no model artifact or image is produced from broken code.
+* **Quality gate.** The train job exits with an error if test ROC-AUC falls below 0.85, so a model that trains but performs badly also fails the build.
+
+This was verified with a pull request from the branch `demo/ci-failure`. The branch added one deliberately failing test (`assert 0.80 >= 0.85`). The result:
+
+* the lint job passed;
+* the test job failed: pytest reported `1 failed, 42 passed`, with the assertion message, and the step ended with exit code 1;
+* the train and docker jobs were skipped;
+* the pull request showed a failed check.
+
+The pull request was closed without merging and the branch deleted, so `main` was never affected. The failed run remains in the Actions history as evidence.
+
+![Figure 15a – Failed pipeline run: lint passed, tests failed, train and docker skipped](../screenshots/18_ci_failed_run.png)
+
+![Figure 15b – Job log of the failed test step](../screenshots/19_ci_failed_log.png)
+
 ## 8. Model containerisation
 
 The FastAPI application (`src/heart_disease/api/`) exposes these endpoints:

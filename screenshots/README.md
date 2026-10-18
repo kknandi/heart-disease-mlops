@@ -21,5 +21,7 @@ Save your screenshots in this folder **using these exact file names**. `scripts/
 | 15 | `15_prometheus_targets.png` | `http://localhost:9090/targets` with the API target UP | browser |
 | 16 | `16_grafana_dashboard.png` | The "Heart Disease API" Grafana dashboard after running `generate_traffic.py` | browser |
 | 17 | `17_json_logs.png` | JSON request logs (`docker compose logs api` or `kubectl logs`) | terminal |
+| 18 | `18_ci_failed_run.png` | A failed workflow run from a PR with a deliberately failing test: lint passed, test failed, train and docker skipped | GitHub → Actions |
+| 19 | `19_ci_failed_log.png` | The failed test step's log showing the `AssertionError`, `1 failed, 42 passed` and exit code 1 | GitHub → Actions → job |
 
 Tip: on Windows, press **Win + Shift + S** to capture a region, then save it as PNG with the names above.

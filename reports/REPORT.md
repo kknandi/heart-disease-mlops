@@ -182,11 +182,15 @@ Histograms and the correlation heat-map are in the supporting document.
 | train | download → clean → EDA → train; **quality gate: fails if test ROC-AUC < 0.85**; metrics table in summary | `model`, `mlflow-and-reports` |
 | docker | build image, run it, smoke-test `/health` and `/predict`, assert 422 on bad input; push to GHCR on `main` | `docker-smoke-test` |
 
-![Figure 10 – Successful pipeline run: four jobs and test summary](../screenshots/07_github_actions.png){width=6.4}
+**Failure handling.** To verify that the pipeline fails on errors, I opened a pull request containing a deliberately failing test (Figure 11). The test job failed with exit code 1 and a clear `AssertionError` in the log (Figure 14). The train and docker jobs were skipped, so no model or image was produced. The pull request was then closed without merging.
 
-![Figure 11 – Run summary: model comparison written by the train job](../screenshots/08_github_artifacts.png){width=5.6 crop=0.315-0.452} 
+![Figure 10 – Successful run: all four jobs pass](../screenshots/07_github_actions.png) ![Figure 11 – Failed run: tests fail, train and docker skipped](../screenshots/18_ci_failed_run.png)
 
-![Figure 12 – Artifacts uploaded by the run](../screenshots/08_github_artifacts.png){width=5.6 crop=0.774-0.928}
+![Figure 12 – Run summary: model comparison written by the train job](../screenshots/08_github_artifacts.png){width=5.6 crop=0.315-0.452} 
+
+![Figure 13 – Artifacts uploaded by the run](../screenshots/08_github_artifacts.png){width=5.6 crop=0.774-0.928}
+
+![Figure 14 – Log of the failed test step](../screenshots/19_ci_failed_log.png){width=6.4 crop=0.64-0.80 cropx=0.27-0.96}
 
 ## 9. Model containerisation
 
@@ -202,9 +206,9 @@ Pydantic checks every field's type, range and allowed codes, and rejects unknown
 
 The image is based on `python:3.13-slim`. It contains only the serving requirements and the model files, runs as a non-root user (uid 10001), and has a `HEALTHCHECK` on `/health`.
 
-![Figure 13 – docker build / run / ps](../screenshots/09_docker_build_run.png){width=5.2}
+![Figure 15 – docker build / run / ps](../screenshots/09_docker_build_run.png){width=5.2}
 
-![Figure 14 – /predict on the container with sample input](../screenshots/10_docker_predict.png){width=6.4}
+![Figure 16 – /predict on the container with sample input](../screenshots/10_docker_predict.png){width=6.4}
 
 ## 10. Production deployment (Kubernetes)
 
@@ -219,9 +223,9 @@ The manifests in `k8s/` are applied with `kubectl apply -k k8s/` on Docker Deskt
 * a **LoadBalancer Service** on port 8080;
 * an optional nginx **Ingress** (`heart-disease.localtest.me`).
 
-![Figure 15 – kubectl get all: two running pods and the LoadBalancer service](../screenshots/12_k8s_get_all.png){width=5.6}
+![Figure 17 – kubectl get all: two running pods and the LoadBalancer service](../screenshots/12_k8s_get_all.png){width=5.6}
 
-![Figure 16 – Prediction served through the LoadBalancer (localhost:8080)](../screenshots/14_k8s_predict.png){width=6.4}
+![Figure 18 – Prediction served through the LoadBalancer (localhost:8080)](../screenshots/14_k8s_predict.png){width=6.4}
 
 ## 11. Monitoring and logging
 
@@ -231,9 +235,9 @@ The manifests in `k8s/` are applied with `kubectl apply -k k8s/` on Docker Deskt
 
 **Dashboard.** `docker compose up` starts Prometheus, which scrapes both the Compose API and the Kubernetes service every 5 seconds, and Grafana. Grafana has a provisioned 10-panel dashboard showing requests per second, p50/p95/p99 latency, 4xx/5xx rates, the class mix and the mean probability. `scripts/generate_traffic.py` replays real patients and injects about 10 % invalid requests.
 
-![Figure 17 – Prometheus: both scrape targets (Docker Compose and Kubernetes) UP](../screenshots/15_prometheus_targets.png){width=5.6 crop=0.0-0.71}
+![Figure 19 – Prometheus: both scrape targets (Docker Compose and Kubernetes) UP](../screenshots/15_prometheus_targets.png){width=5.6 crop=0.0-0.71}
 
-![Figure 18 – Grafana dashboard under generated load](../screenshots/16_grafana_dashboard.png){width=4.6}
+![Figure 20 – Grafana dashboard under generated load](../screenshots/16_grafana_dashboard.png){width=4.6}
 
 ## 12. Conclusion and future work
 

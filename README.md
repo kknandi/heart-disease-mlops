@@ -184,6 +184,8 @@ python scripts/generate_traffic.py --n 300 --invalid-ratio 0.1
 
 Each job fails the pipeline on error. Results appear in the run summary.
 
+Failure handling was verified with a pull request that added a deliberately failing test. The test job failed with a clear `AssertionError` and exit code 1, the train and docker jobs were skipped, and the PR was closed without merging. Screenshots: `screenshots/18_ci_failed_run.png` and `screenshots/19_ci_failed_log.png`.
+
 ## 9. Report
 
 `reports/REPORT.md` is the source of the 10-page main report. `reports/SUPPORTING_DOCUMENT.md` holds the full technical detail and every screenshot. Build both Word documents with:

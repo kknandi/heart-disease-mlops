@@ -7,9 +7,9 @@ reports/SUPPORTING_DOCUMENT.md -> reports/MLOps_Assignment1_Supporting_Document.
 
 Supports the Markdown subset used in the reports: headings, paragraphs, **bold**,
 `code`, bullet/numbered lists, tables, fenced code blocks and images. Image extensions:
-``![caption](path){width=5.2 crop=0.3-0.45}`` sets the width in inches and keeps only a
-vertical band of the picture; several images on one line are placed side by side.
-Images that do not exist are replaced by a visible placeholder.
+``![caption](path){width=5.2 crop=0.3-0.45 cropx=0.2-1}`` sets the width in inches and keeps
+only a vertical (crop) / horizontal (cropx) band of the picture; several images on one line
+are placed side by side. Images that do not exist are replaced by a visible placeholder.
 """
 
 from __future__ import annotations
@@ -62,13 +62,16 @@ def _parse_attrs(attrs: str | None) -> dict[str, str]:
     return dict(item.split("=", 1) for item in (attrs or "").split() if "=" in item)
 
 
-def _picture(path: Path, crop: str | None):
-    if not crop:
+def _picture(path: Path, crop: str | None, cropx: str | None = None):
+    if not crop and not cropx:
         return str(path)
-    top, bottom = (float(v) for v in crop.split("-"))
+    top, bottom = (float(v) for v in (crop or "0-1").split("-"))
+    left, right = (float(v) for v in (cropx or "0-1").split("-"))
     with Image.open(path) as img:
         width, height = img.size
-        band = img.crop((0, int(top * height), width, int(bottom * height)))
+        band = img.crop(
+            (int(left * width), int(top * height), int(right * width), int(bottom * height))
+        )
         buf = io.BytesIO()
         band.save(buf, format="PNG")
     buf.seek(0)
@@ -87,7 +90,8 @@ def _place_image(paragraph, base: Path, rel_path: str, attrs: dict, width: float
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     if path.exists():
         width = float(attrs.get("width", width))
-        paragraph.add_run().add_picture(_picture(path, attrs.get("crop")), width=Inches(width))
+        picture = _picture(path, attrs.get("crop"), attrs.get("cropx"))
+        paragraph.add_run().add_picture(picture, width=Inches(width))
     else:
         run = paragraph.add_run(f"[Screenshot pending: {rel_path}]")
         run.italic = True
