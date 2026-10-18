@@ -4,7 +4,7 @@
 **Student:** Kallol Kumar Nandi (2025CT05010)  
 **Repository:** https://github.com/kknandi/heart-disease-mlops  
 **Video:** https://drive.google.com/file/d/1fALknWjPBK3YqliuhAVuLQssrfQERzV6/view?usp=drive_link  
-**Supporting document:** `reports/MLOps_Assignment1_Supporting_Document.docx` (full tables, test inventory and all screenshots)  
+**Supporting document:** https://github.com/kknandi/heart-disease-mlops/blob/main/reports/MLOps_Assignment1_Supporting_Document.pdf (full tables, test inventory and all screenshots)
 **Date:** 18-Oct-2026
 
 ## 1. Summary
